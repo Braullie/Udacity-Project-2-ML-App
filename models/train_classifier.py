@@ -38,6 +38,7 @@ def load_data(database_filepath):
     INPUT:
     database_filepath : Path of the database holding the dataset
     """
+    
     engine = create_engine('sqlite:///'+database_filepath)
     df = pd.read_sql_table('dataset', con = engine)
     X = df.message
@@ -48,6 +49,16 @@ def load_data(database_filepath):
     
 
 def tokenize(text):
+    """
+    Function to use with sklearn's CountVectorizer
+    
+    INPUT:
+    text : String of text to be tokenized
+    
+    OUTPUT:
+    clean_tokens : Tokenized data
+    """
+    
     url_regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
     
     detected_urls = re.findall(url_regex, text)
@@ -68,7 +79,12 @@ def tokenize(text):
 def build_model():
     """
     Initialization of the model's pipeline and cross validation parameters
+    
+    OUTPUT:
+    cv : GridSearchCV object containing the Pipeline and cross validation paramters to be used
+         for training.
     """
+    
     pipeline = Pipeline([
         ('text_pipeline', Pipeline([
             ('vect', CountVectorizer(tokenizer = tokenize)),
@@ -112,6 +128,7 @@ def evaluate_model(model, X_test, Y_test, category_names):
     Y_test : Categories belonging to the messages above
     category_names : Names of the 36 categories
     """
+    
     Y_pred = model.predict(X_test)
     Y_pred = pd.DataFrame(Y_pred, columns = category_names)
 
@@ -138,6 +155,7 @@ def save_model(model, model_filepath):
     model : Fitted model
     model_filepath : Path where the model will be saved
     """
+    
     pickle.dump(model, open(model_filepath, 'wb'))
 
 
